@@ -15,6 +15,8 @@
 #include <string>
 #include <bit>
 
+// #define DEBUG_CHAINING true
+
 // serializes the QualityProof into the form that will be hashed together with
 // the challenge to determine the quality of ths proof. The quality is used to
 // check if it passes the current difficulty. The format is:
@@ -135,7 +137,9 @@ public:
         #endif
         // uint32_t chaining_hash_pass_threshold = proof_core.quality_chain_pass_threshold();
 
+        #ifdef DEBUG_CHAINING
         std::cout << "Found fragments passing filter: " << filtered_fragments.size() << std::endl;
+        #endif
         for (const auto &frag_res : filtered_fragments)
         {
             uint64_t fragment = frag_res.fragment;
@@ -168,28 +172,27 @@ public:
             #ifdef DEBUG_CHAINING
             std::cout << " # First Quality Links: " << firstLinks.size() << std::endl;
             std::cout << " # Links: " << links.size() << std::endl;
-            #endif
 
-            // analysis code
-            if (false)
+            // output some stastistics about unique fragments and x-bits found
+            // useful to check for bit drop saturation
+            std::set<uint64_t> unique_fragments;
+            std::set<uint64_t> unique_x_bits;
+            for (const auto &link : links)
             {
-                std::set<uint64_t> unique_fragments;
-                std::set<uint64_t> unique_x_bits;
-                for (const auto &link : links)
+                for (int i = 0; i < 3; i++)
                 {
-                    for (int i = 0; i < 3; i++)
-                    {
-                        unique_fragments.insert(link.fragments[i]);
-                        std::array<uint32_t, 4> x_bits = proof_core.fragment_codec.get_x_bits_from_proof_fragment(link.fragments[i]);
-                        unique_x_bits.insert(x_bits[0]);
-                        unique_x_bits.insert(x_bits[1]);
-                        unique_x_bits.insert(x_bits[2]);
-                        unique_x_bits.insert(x_bits[3]);
-                    }
+                    unique_fragments.insert(link.fragments[i]);
+                    std::array<uint32_t, 4> x_bits = proof_core.fragment_codec.get_x_bits_from_proof_fragment(link.fragments[i]);
+                    unique_x_bits.insert(x_bits[0]);
+                    unique_x_bits.insert(x_bits[1]);
+                    unique_x_bits.insert(x_bits[2]);
+                    unique_x_bits.insert(x_bits[3]);
                 }
-                std::cout << "Unique fragments found: " << unique_fragments.size() << std::endl;
-                std::cout << "Unique x-bits found: " << unique_x_bits.size() << std::endl;
             }
+            std::cout << "Unique fragments found: " << unique_fragments.size() << std::endl;
+            std::cout << "Unique x-bits found: " << unique_x_bits.size() << std::endl;
+            
+            #endif
 
             // 4) For each Quality Chain, grow and expand the number of chains link by link until we reach the chain length limit (NUM_CHAIN_LINKS).
             for (const auto &firstLink : firstLinks)

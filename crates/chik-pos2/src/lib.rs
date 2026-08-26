@@ -1,6 +1,6 @@
 use std::ffi::{CString, c_char};
 use std::fs::File;
-use std::io::{Error, ErrorKind, Read, Result};
+use std::io::{Error, Read, Result};
 use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
@@ -122,31 +122,21 @@ pub fn solve_proof(partial_proof: &PartialProof, plot_id: &Bytes32, k: u8) -> Ve
         return vec![];
     }
 
-    bits::compact_bits(&proof, k, partial_proof.strength)
+    bits::compact_bits(&proof, k)
 }
 
 pub fn validate_proof_v2(
     plot_id: &Bytes32,
     size: u8,
     challenge: &Bytes32,
-    required_plot_strength: u8,
+    strength: u8,
     proof_fragment_scan_filter: u8,
     proof: &[u8],
 ) -> Option<[u8; 385]> {
-    let (x_values, strength) = bits::expand_bits(proof, 512, size);
+    let x_values = bits::expand_bits(proof, size)?;
 
     if x_values.len() != NUM_CHAIN_LINKS * 32 {
         // a full proof has exactly 512 x-values. This is invalid or incomplete
-        return None;
-    }
-
-    if strength > 255 {
-        // strength is supposed to fit in 8 bits
-        return None;
-    }
-    let strength = strength as u8;
-    if strength < required_plot_strength {
-        // strength is not high enough
         return None;
     }
 
@@ -184,7 +174,7 @@ pub fn create_v2_plot(
     memo: &[u8; 32 + 48 + 32],
 ) -> Result<()> {
     let Some(filename) = filename.to_str() else {
-        return Err(Error::new(ErrorKind::Other, "invalid path"));
+        return Err(Error::other("invalid path"));
     };
 
     let filename = CString::new(filename)?;
@@ -208,7 +198,7 @@ pub fn create_v2_plot(
     if success {
         Ok(())
     } else {
-        Err(Error::new(ErrorKind::Other, "failed to create plot file"))
+        Err(Error::other("failed to create plot file"))
     }
 }
 
@@ -267,24 +257,24 @@ impl Prover {
 
         let mut offset: usize = 0;
         if &header[offset..(offset + 4)] != b"pos2" {
-            return Err(Error::new(ErrorKind::Other, "Not a plotfile"));
+            return Err(Error::other("Not a plotfile"));
         }
         offset += 4;
         if header[offset] != 1 {
-            return Err(Error::new(ErrorKind::Other, "unsupported plot version"));
+            return Err(Error::other("unsupported plot version"));
         }
         offset += 1;
         let plot_id: [u8; 32] = header[offset..(offset + 32)].try_into().unwrap();
         offset += 32;
         let size = header[offset];
         if !(18..=32).contains(&size) || (size % 2) != 0 {
-            return Err(Error::new(ErrorKind::Other, "invalid k-size"));
+            return Err(Error::other("invalid k-size"));
         }
         offset += 1;
 
         let strength = header[offset];
         if strength < 2 {
-            return Err(Error::new(ErrorKind::Other, "invalid strength"));
+            return Err(Error::other("invalid strength"));
         }
         offset += 1;
 
@@ -312,7 +302,7 @@ impl Prover {
         proof_fragment_scan_filter: u8,
     ) -> Result<Vec<QualityChain>> {
         let Some(plot_path) = self.path.to_str() else {
-            return Err(Error::new(ErrorKind::Other, "invalid path"));
+            return Err(Error::other("invalid path"));
         };
 
         let plot_path = CString::new(plot_path)?;
@@ -338,7 +328,7 @@ impl Prover {
 
     pub fn get_partial_proof(&self, quality: &QualityChain) -> Result<PartialProof> {
         let Some(plot_path) = self.path.to_str() else {
-            return Err(Error::new(ErrorKind::Other, "invalid path"));
+            return Err(Error::other("invalid path"));
         };
 
         let plot_path = CString::new(plot_path)?;
@@ -355,7 +345,7 @@ impl Prover {
                 strength: self.strength,
             })
         } else {
-            Err(Error::new(ErrorKind::Other, "failed to get partial proof"))
+            Err(Error::other("failed to get partial proof"))
         }
     }
 
