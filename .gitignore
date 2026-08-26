@@ -1,4 +1,3 @@
-.DS_Store
 *.o
 *.out
 *.exe
@@ -10,4 +9,3 @@
 *.dSYM/
 build/
 cmake-build*/
-target/

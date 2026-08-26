@@ -1,0 +1,26 @@
+[package]
+name = "chik-pos2"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+description = "A library for creating plots, validating proofs of space, farming partial proofs and solving proofs. Using Chik proof of space v2"
+authors = [
+    "Arvid Norberg <arvid@chiknetwork.com>",
+    "Harold Brenes <h.brenes@chiknetwork.com>",
+    "Nick Halper <n.halper@chiknetwork.com>"
+]
+homepage = "https://github.com/Chik-Network/pos2/crates/chik-po2"
+repository = "https://github.com/Chik-Network/pos2/crates/chik-pos2"
+
+[lib]
+bench = false
+
+[dependencies]
+serde = { workspace = true }
+serde-big-array = { workspace = true }
+
+[build-dependencies]
+cc = { workspace = true }
+
+[dev-dependencies]
+rstest = { workspace = true }

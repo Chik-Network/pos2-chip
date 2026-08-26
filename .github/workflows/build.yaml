@@ -3,7 +3,7 @@ name: Build
 on:
   push:
     branches:
-      - main
+      - main1
     tags:
       - "**"
   pull_request:
@@ -24,11 +24,8 @@ jobs:
         os:
           - macos-14
           - macos-15
-          - macos-15-intel
           - ubuntu-22.04
           - ubuntu-24.04
-          - ubuntu-22.04-arm
-          - ubuntu-24.04-arm
           - windows-2022
           - windows-2025
         mode:
@@ -84,18 +81,20 @@ jobs:
       - name: Plotter (Windows)
         if: ${{ startsWith(matrix.os, 'windows') }}
         run: |
-          build\plotter.exe test 18 0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF 2
-          build\prover.exe challenge 8503000000000000000000000000000000000000000000000000000000000000 plot_18_2_0_0_0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF.bin
+          build\src\tools\plotter\${{ matrix.mode }}\plotter.exe test 18 0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF 2
+          build\src\tools\prover\${{ matrix.mode }}\prover.exe challenge 5700000000000000000000000000000000000000000000000000000000000000 plot_18_2_0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF.bin 1
       - name: Plotter
         if: ${{ !startsWith(matrix.os, 'windows') }}
         run: |
-          build/plotter test 18 0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF 2
-          build/prover challenge 8503000000000000000000000000000000000000000000000000000000000000 plot_18_2_0_0_0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF.bin
+          build/src/tools/plotter/plotter test 18 0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF 2
+          build/src/tools/prover/prover challenge 5700000000000000000000000000000000000000000000000000000000000000 plot_18_2_0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF.bin 1
       - name: Benchmark (Windows)
         if: ${{ matrix.mode == 'Release' && startsWith(matrix.os, 'windows') }}
         run: |
-          build\solver.exe benchmark 28
+          build\src\tools\solver\${{ matrix.mode }}\solver.exe benchmark 28
       - name: Benchmark
         if: ${{ matrix.mode == 'Release' && !startsWith(matrix.os, 'windows') }}
         run: |
-          build/solver benchmark 28
+          build/src/tools/solver/solver benchmark 28
+
+
