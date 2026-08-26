@@ -10,4 +10,4 @@
 *.dSYM/
 build/
 cmake-build*/
-/target/
+target/
