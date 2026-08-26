@@ -6,7 +6,7 @@ lto = "thin"
 
 [workspace.dependencies]
 chik-bls = "0.29.0"
-chik-pos2 = { path = "crates/chik-pos2", version = "0.3.0" }
+chik-pos2 = { path = "crates/chik-pos2", version = "0.4.0" }
 blake3 = "1.8.2"
 cc = { version = "1.2.16", features = ["parallel"] }
 rstest = "0.26.1"
