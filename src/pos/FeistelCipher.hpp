@@ -18,7 +18,7 @@ class FeistelCipher {
 public:
     static constexpr uint32_t K_BASE = 28;
     static constexpr uint32_t ROUNDS = 4;
-    static constexpr const char ROUND_KEY_SALT[] = "ChikPos2Fesitel";
+    static constexpr const char ROUND_KEY_SALT[] = "ChiaPos2Fesitel";
     static_assert(sizeof(ROUND_KEY_SALT) == 16);
 
     struct RoundKey {
